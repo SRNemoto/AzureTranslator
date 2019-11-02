@@ -89,12 +89,20 @@ class GUI(QWidget):
         self.handler.Txt2Spch(trans_out, lang_code_out)
         
     def t2s_click(self):
-        self.textin.setPlainText(self.langboxin.currentText())
-        self.textout.setPlainText(self.langboxout.currentText())
+        lang_code_in = lang_code_dict[self.langboxin.currentText()]
+        lang_code_out = lang_code_dict[self.langboxout.currentText()]
+        
+        trans_out = self.handler.TransTxt(self.textin.toPlainText(), lang_code_out)
+        self.textout.setPlainText(trans_out)
+        self.handler.Txt2Spch(trans_out, lang_code_out)
         
     def t2t_click(self):
-        self.textin.setPlainText(self.langboxin.currentText())
-        self.textout.setPlainText(self.langboxout.currentText())
+        lang_code_in = lang_code_dict[self.langboxin.currentText()]
+        lang_code_out = lang_code_dict[self.langboxout.currentText()]
+        
+        trans_out = self.handler.TransTxt(self.textin.toPlainText(), lang_code_out)
+        self.textout.setPlainText(trans_out)
+        
         
 if __name__ == '__main__':
     
