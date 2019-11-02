@@ -1,7 +1,7 @@
 # Authors
 
 - Shota Nemoto (SRNemoto)
-- David Tan (fuck if I know)
+- David Tan (tan718vis2019a)
 
 ## Description 
 
