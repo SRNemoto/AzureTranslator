@@ -1,10 +1,14 @@
 import azure.cognitiveservices.speech as speechsdk
-print("A")
+
+filename = "api_key.txt"
+api_file = open(filename, "r")
+api_key = api_file.readlines()
+
 # Creates an instance of a speech config with specified subscription key and service region.
 # Replace with your own subscription key and service region (e.g., "westus").
-speech_key, service_region = ""
+speech_key, service_region = api_key[0].rstrip(), api_key[1].rstrip()
 speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-print("B")
+
 # Creates a recognizer with the given settings
 speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
 
