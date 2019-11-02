@@ -7,7 +7,7 @@ import azure.cognitiveservices.speech.translation as TransSDK
 
 # api_key, service_region = api_file_lines[0].rstrip(), api_file_lines[1].rstrip()
 
-class SpchTxtHandler():
+class SpchTxtHandler:
     """ Module for handling transformations between speech and text as well as translations """
 
     def __init__(self, api_key, service_region):
