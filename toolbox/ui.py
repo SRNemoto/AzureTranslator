@@ -408,6 +408,9 @@ class UI(QDialog):
         self.t2t_btn = QPushButton('Text To Text')
         trans_layout.addWidget(self.t2t_btn)
         self.t2t_btn.clicked.connect(self.t2t_click)
+        self.s2s_btn = QPushButton('Speech To Speech')
+        trans_layout.addWidget(self.s2s_btn)
+        self.s2s_btn.clicked.connect(self.s2s_click)
 
 
         # OCR
