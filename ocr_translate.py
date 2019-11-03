@@ -26,8 +26,7 @@ subscription_key = api_key[0]
 endpoint = api_key[2]
 
 # Set image_url to the URL of an image that you want to analyze.
-image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/" + \
-    "Atomist_quote_from_Democritus.png/338px-Atomist_quote_from_Democritus.png"
+image_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS-U_MPKCrLTHxCyMNEQQrgH0s-i4tghVaAul3fAjatrDdUbrZx"
 
 """ for images from local storage"""
 # image_path = "<path-to-local-image-file>"
@@ -66,9 +65,6 @@ class OCRTranslate:
         plt.figure(figsize=(5, 5))
         image = Image.open(BytesIO(requests.get(image_url).content))
         np_image = np.array(image)
-        print("image length: {}".format(np_image.shape))
-        print("image[0] length: {}".format(len(np_image[0])))
-        print("image type: {}".format(type(np_image)))
         ax = plt.imshow(image)
         for word in word_infos:
             bbox = [int(num) for num in word["boundingBox"].split(",")]
@@ -77,7 +73,7 @@ class OCRTranslate:
             text = word["text"]
             origin = (bbox[0], bbox[1])
             patch = Rectangle(origin, bbox[2], bbox[3],
-                            fill=False, linewidth=2, color=avg_color[0:3])
+                            fill=True, linewidth=2, color=avg_color[0:3])
             ax.axes.add_patch(patch)
             plt.text(origin[0], origin[1], text, fontsize=20, weight="bold", va="top", color='w')
         plt.axis("off")
@@ -92,12 +88,11 @@ class OCRTranslate:
         avg_list = []
 
         for index in range(0, np_image.shape[2]):
-            print("top_left[{}]: {}".format(index, np_image[bbox[1], bbox[0], index]))
             avg = \
                 np_image[bbox[1], bbox[0], index] + \
-                np_image[bbox[3], bbox[0], index] + \
-                np_image[bbox[1], bbox[2], index] + \
-                np_image[bbox[3], bbox[2], index]
+                np_image[bbox[1] + bbox[3], bbox[0] + bbox[2], index] + \
+                np_image[bbox[1], bbox[0] + bbox[2], index] + \
+                np_image[bbox[1] + bbox[3], bbox[0], index]
             avg /= 4 * 255
             avg_list.append(avg)
 
