@@ -1,11 +1,13 @@
 import requests
 # If you are using a Jupyter notebook, uncomment the following line.
 # %matplotlib inline
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from PIL import Image
 from io import BytesIO
 import numpy as np
+import os, requests, uuid, json
 
 # Add your Computer Vision subscription key and endpoint to your environment variables.
 # if 'COMPUTER_VISION_SUBSCRIPTION_KEY' in os.environ:
@@ -23,6 +25,7 @@ api_lines = api_file.readlines()
 api_key = [line for line in map((lambda line: line.rstrip()), api_lines)]
 
 subscription_key = api_key[0]
+region = api_key[1]
 endpoint = api_key[2]
 
 # Set image_url to the URL of an image that you want to analyze.
@@ -39,14 +42,16 @@ image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/" + \
 # response = requests.post(ocr_url, headers=headers, params=params, data = image_data)
 
 class OCRTranslate:
-    def __init__(self, api_key, endpoint):
+    def __init__(self, api_key, region, endpoint):
         self.key = api_key
+        self.region = region
         self.endpoint = endpoint
+        matplotlib.rc('font', family='Arial')
     
-    def TransImg(self, language='unk', image_url=None, image_path=None):
+    def TransImg(self, read_lang='unk', output_lang='unk', image_url=None, image_path=None):
         ocr_url = self.endpoint + "vision/v2.1/ocr"
         headers = {'Ocp-Apim-Subscription-Key': self.key}
-        params = {'language': language, 'detectOrientation': 'true'}
+        params = {'language': read_lang, 'detectOrientation': 'true'}
         data = {'url': image_url}
         response = requests.post(ocr_url, headers=headers, params=params, json=data)
         response.raise_for_status()
@@ -61,6 +66,9 @@ class OCRTranslate:
                 for word_info in word_metadata["words"]:
                     word_infos.append(word_info)
                     print(word_info)
+
+        for word in word_infos:
+            word['text'] = self.get_translation(word['text'], output_lang)
 
         # Display the image and overlay it with the extracted text.
         plt.figure(figsize=(5, 5))
@@ -77,7 +85,7 @@ class OCRTranslate:
             text = word["text"]
             origin = (bbox[0], bbox[1])
             patch = Rectangle(origin, bbox[2], bbox[3],
-                            fill=False, linewidth=2, color=avg_color[0:3])
+                            fill=False, linewidth=2, color='y')
             ax.axes.add_patch(patch)
             plt.text(origin[0], origin[1], text, fontsize=20, weight="bold", va="top", color='w')
         plt.axis("off")
@@ -102,8 +110,28 @@ class OCRTranslate:
             avg_list.append(avg)
 
         return avg_list
+    
+    def get_translation(self, text_input, output_lang):
+        base_url = 'https://api.cognitive.microsofttranslator.com'
+        path = '/translate?api-version=3.0'
+        params = '&to=' + output_lang
+        constructed_url = base_url + path + params
+
+        headers = {
+            'Ocp-Apim-Subscription-Key': self.key,
+            'Ocp-Apim-Subscription-Region': self.region,
+            'Content-type': 'application/json',
+            'X-ClientTraceId': str(uuid.uuid4())
+        }
+
+        # You can pass more than one object in body.
+        body = [{
+            'text' : text_input
+        }]
+        response = requests.post(constructed_url, headers=headers, json=body)
+        return response.json()[0]['translations'][0]['text']
             
 
 if __name__ == "__main__":
-    module = OCRTranslate(subscription_key, endpoint)
-    module.TransImg('unk', image_url)
+    module = OCRTranslate(subscription_key, region, endpoint)
+    module.TransImg('unk', 'es', image_url)
