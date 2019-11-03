@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from PIL import Image
 from io import BytesIO
+import numpy as np
 
 # Add your Computer Vision subscription key and endpoint to your environment variables.
 # if 'COMPUTER_VISION_SUBSCRIPTION_KEY' in os.environ:
@@ -50,17 +51,19 @@ word_infos
 
 # Display the image and overlay it with the extracted text.
 plt.figure(figsize=(5, 5))
-print("got here")
 image = Image.open(BytesIO(requests.get(image_url).content))
-print("got over here")
-ax = plt.imshow(image, alpha=0.5)
-print("Got all the way here")
+np_image = np.array(image)
+print("image length: {}".format(np_image.shape))
+print("image[0] length: {}".format(len(np_image[0])))
+print("image type: {}".format(type(np_image)))
+ax = plt.imshow(image, alpha=1)
 for word in word_infos:
     bbox = [int(num) for num in word["boundingBox"].split(",")]
+    # print("bbox[0]: {}".format(bbox[0]))
     text = word["text"]
     origin = (bbox[0], bbox[1])
     patch = Rectangle(origin, bbox[2], bbox[3],
-                      fill=False, linewidth=2, color='y')
+                      fill=True, linewidth=2, color='#FFFFFF')
     ax.axes.add_patch(patch)
     plt.text(origin[0], origin[1], text, fontsize=20, weight="bold", va="top")
 plt.axis("off")
