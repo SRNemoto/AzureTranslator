@@ -412,6 +412,19 @@ class UI(QDialog):
         trans_layout.addWidget(self.s2s_btn)
         self.s2s_btn.clicked.connect(self.s2s_click)
 
+        self.langboxin = QComboBox(self)
+        self.langboxin.addItems(lang_list)
+        size = self.langboxin.sizeHint()
+        #self.langboxin.move(w/40, h/2 - size.height())
+        trans_layout.addWidget(self.langboxin)
+        self.langboxin.resize(size)
+        
+        self.langboxout = QComboBox(self)
+        self.langboxout.addItems(lang_list)
+        size = self.langboxout.sizeHint()
+        trans_layout.addWidget(self.langboxout)
+        #self.langboxout.move(w-w/40-size.width(), h/2 - size.height())
+        self.langboxout.resize(size)
 
         # OCR
         self.temp = QPlainTextEdit(self)
