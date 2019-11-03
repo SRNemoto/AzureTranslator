@@ -357,6 +357,7 @@ class UI(QDialog):
         self.app = QApplication(sys.argv)
         super().__init__(None)
         self.setWindowTitle("SV2TTS toolbox")
+        self.handler = handler(key, service_region)
         
         
         ## Main layouts
@@ -563,6 +564,7 @@ class UI(QDialog):
             translation_config=trans_config
         )
         
+        trans_recog.add_target_language("en-US")
         trans_recog.add_target_language(lang_code_out)
             
         out_evt = None
@@ -580,7 +582,7 @@ class UI(QDialog):
         trans_recog.stop_continuous_recognition()
         trans = out_evt.result.translations
         keys = trans.keys()
-        
+        print(keys)
         if lang_code_in == lang_code_out:
             trans_in = trans[keys[0]]
             trans_out = trans[keys[0]]
@@ -601,7 +603,7 @@ class UI(QDialog):
         lang_code_out = lang_code_dict[self.langboxout.currentText()]
         
         trans_out = self.handler.TransTxt(self.textin.toPlainText(), lang_code_out)
-        self.textout.setPlainText(trans_out)
+        self.text_prompt.setPlainText(trans_out)
 
     def start(self):
         self.app.exec_()
