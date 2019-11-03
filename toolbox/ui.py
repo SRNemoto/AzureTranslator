@@ -16,6 +16,7 @@ import sys, time
 from SpchTxtHandler import SpchTxtHandler as handler 
 import azure.cognitiveservices.speech.translation as TransSDK
 from warnings import filterwarnings
+import  ocr_translate as ocr
 filterwarnings("ignore")
 
 
@@ -42,6 +43,9 @@ lang_list = ["English",
 lang_code_dict =     {"English": "en-US",
                     "Chinese": "zh-CN",
                     "Spanish": "es-MX"}
+ocr_code_dict =     {"English": "en",
+                    "Chinese": "zh-Hans",
+                    "Spanish": "es"}
 filename = "api_key.txt"
 api_file = open(filename, "r")
 api_key = api_file.readlines()
@@ -428,8 +432,14 @@ class UI(QDialog):
         self.langboxout.resize(size)
 
         # OCR
-        self.temp = QPlainTextEdit(self)
-        ocr_layout.addWidget(self.temp)
+        self.ocrtext = QPlainTextEdit(self)
+        ocr_layout.addWidget(self.ocrtext)
+        self.ocr_btn = QPushButton('Image Translate')
+        size = self.ocr_btn.sizeHint()
+        self.ocr_btn.resize(size)
+        ocr_layout.addWidget(self.ocr_btn)
+        self.ocr_btn.clicked.connect(self.ocr_click)
+
 
         ## Browser
         # Dataset, speaker and utterance selection
@@ -494,8 +504,6 @@ class UI(QDialog):
         i += 2
 
 
-        # OCR Stuff Here
-
         # ## Embed & spectrograms
         vis_layout.addStretch()
 
@@ -548,6 +556,11 @@ class UI(QDialog):
         self.reset_interface()
         self.show()
 
+    def ocr_click(self):
+        ocr_trans = ocr.OCRTranslate(ocr.subscription_key, ocr.region, ocr.endpoint)
+        lang_code_out = ocr_code_dict[self.langboxout.currentText()]
+        ocr_trans.TransImg('unk', lang_code_out, self.ocrtext.toPlainText())
+
     def s2t_click(self):
         lang_code_in = lang_code_dict[self.langboxin.currentText()]
         lang_code_out = lang_code_dict[self.langboxout.currentText()]
@@ -563,8 +576,9 @@ class UI(QDialog):
         trans_recog = TransSDK.TranslationRecognizer(
             translation_config=trans_config
         )
-        
+        print(lang_code_in)
         trans_recog.add_target_language("en-US")
+        print(lang_code_out)
         trans_recog.add_target_language(lang_code_out)
             
         out_evt = None
