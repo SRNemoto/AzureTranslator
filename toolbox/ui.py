@@ -46,6 +46,9 @@ lang_code_dict =     {"English": "en-US",
 ocr_code_dict =     {"English": "en",
                     "Chinese": "zh-Hans",
                     "Spanish": "es"}
+trans_code_dict = {"English": "en",
+                    "Chinese": "zh-Hans",
+                    "Spanish": "es"}
 filename = "api_key.txt"
 api_file = open(filename, "r")
 api_key = api_file.readlines()
@@ -564,17 +567,19 @@ class UI(QDialog):
     def s2t_click(self):
         lang_code_in = lang_code_dict[self.langboxin.currentText()]
         lang_code_out = lang_code_dict[self.langboxout.currentText()]
+        trans_code_in = trans_code_dict[self.langboxin.currentText()]
+        trans_code_out = trans_code_dict[self.langboxout.currentText()]
         
         trans = self.handler.Speech2TxtTrans(lang_code_in, [lang_code_in, lang_code_out])
         
         keys = trans.keys()
         print(keys)
         if lang_code_in == lang_code_out:
-            trans_in = trans[keys[0]]
-            trans_out = trans[keys[0]]
+            trans_in = trans[trans_code_in]
+            trans_out = trans[trans_code_out]
         else:
-            trans_in = trans[keys[0]]
-            trans_out = trans[keys[1]]
+            trans_in = trans[trans_code_in]
+            trans_out = trans[trans_code_out]
             
         self.textin.setPlainText(trans_in)
         self.text_prompt.setPlainText(trans_out)
