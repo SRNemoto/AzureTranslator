@@ -12,7 +12,9 @@ import numpy as np
 # from sklearn.manifold import TSNE         # You can try with TSNE if you like, I prefer UMAP 
 from time import sleep
 import umap
-import sys
+import sys, time
+from SpchTxtHandler import SpchTxtHandler as handler 
+import azure.cognitiveservices.speech.translation as TransSDK
 from warnings import filterwarnings
 filterwarnings("ignore")
 
@@ -402,8 +404,11 @@ class UI(QDialog):
         trans_layout.addWidget(self.textin, stretch=1)
         self.s2t_btn = QPushButton('Speech To Text')
         trans_layout.addWidget(self.s2t_btn)
+        self.s2t_btn.clicked.connect(self.s2t_click)
         self.t2t_btn = QPushButton('Text To Text')
         trans_layout.addWidget(self.t2t_btn)
+        self.t2t_btn.clicked.connect(self.t2t_click)
+
 
         # OCR
         self.temp = QPlainTextEdit(self)
@@ -569,7 +574,18 @@ class UI(QDialog):
             
         self.textin.setPlainText(trans_in)
         self.text_prompt.setPlainText(trans_out)
+        return trans_out, lang_code_out
+    
+    def s2s_click(self):
+        trans_out, lang_code_out = self.s2t_click()
         self.handler.Txt2Spch(trans_out, lang_code_out)
+
+    def t2t_click(self):
+        lang_code_in = lang_code_dict[self.langboxin.currentText()]
+        lang_code_out = lang_code_dict[self.langboxout.currentText()]
+        
+        trans_out = self.handler.TransTxt(self.textin.toPlainText(), lang_code_out)
+        self.textout.setPlainText(trans_out)
 
     def start(self):
         self.app.exec_()
