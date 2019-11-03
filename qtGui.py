@@ -1,7 +1,9 @@
-import sys
+import sys, time
 from PyQt5.QtWidgets import *
 from SpchTxtHandler import SpchTxtHandler as handler 
+import azure.cognitiveservices.speech.translation as TransSDK
 
+ui = None
 
 lang_list = ["English",
             "Chinese",
@@ -20,6 +22,7 @@ class GUI(QWidget):
         super().__init__()
         self.initUI()
         self.handler = handler(key, service_region)
+        self.bool_s2s = False
 
     def initUI(self):
         w, h = 750, 500
@@ -74,7 +77,34 @@ class GUI(QWidget):
         lang_code_in = lang_code_dict[self.langboxin.currentText()]
         lang_code_out = lang_code_dict[self.langboxout.currentText()]
         
-        trans = self.handler.Speech2TxtTrans(lang_code_in, [lang_code_in, lang_code_out])
+        # trans = self.handler.Speech2TxtTrans(lang_code_in, [lang_code_in, lang_code_out])
+        
+        trans_config = TransSDK.SpeechTranslationConfig(
+            subscription=key,
+            region=service_region,
+            speech_recognition_language=lang_code_in
+        )
+
+        trans_recog = TransSDK.TranslationRecognizer(
+            translation_config=trans_config
+        )
+        
+        trans_recog.add_target_language(lang_code_out)
+            
+        out_evt = None
+        
+        def update_str(evt):
+            # print('RECOGNIZING: {}'.format(evt))
+            nonlocal out_evt
+            out_evt = evt
+        
+        trans_recog.recognizing.connect(update_str)
+        trans_recog.recognized.connect(update_str)
+        
+        trans_recog.start_continuous_recognition()
+        time.sleep(10)
+        trans_recog.stop_continuous_recognition()
+        trans = out_evt.result.translations
         keys = trans.keys()
         
         if lang_code_in == lang_code_out:
